@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DUO Academia — Termo p/ Contratantes Menores</title>
-  <meta name="description" content="Formulário para autorização de contratantes menores com assinatura por touch (gera PDF)." />
+  <meta name="description" content="Formulário para autorização de contratantes menores com assinatura por touch (gera PDF). Data é carimbada no momento da geração do PDF." />
   <style>
     :root{ --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --fg:#e5e7eb; --line:#1f2937; --brand:#3b82f6; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
     *{box-sizing:border-box}
@@ -66,7 +66,7 @@
         <h1>DUO Academia · Autorização para contratantes menores</h1>
         <div class="badge">Preencha, aceite o termo e assine com o dedo (ou mouse). Depois gere o PDF.</div>
       </div>
-      <div class="badge">v1.0.1 (menores)</div>
+      <div class="badge">v1.0.3 (menores)</div>
     </header>
 
     <div class="grid">
@@ -109,10 +109,11 @@
               <option value="">UF</option>
               <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option>
               <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option>
-              <option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option><option selected>PE</option><option>PI</option>
               <option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option>
               <option>SP</option><option>SE</option><option>TO</option>
             </select>
+            <div class="help">Padrão: PE (pode alterar)</div>
           </div>
           <div>
             <label for="resp_tel">Telefone</label>
@@ -136,10 +137,6 @@
             <label for="menor_nasc">Data de nascimento</label>
             <input id="menor_nasc" type="date" />
           </div>
-          <div>
-            <label for="data_assinatura">Data da assinatura</label>
-            <input id="data_assinatura" type="date" />
-          </div>
         </div>
 
         <h2 style="margin-top:18px">3) Termo</h2>
@@ -151,8 +148,8 @@
             <span class="mono" id="tt_resp_end">__________________________________</span>, n.º
             <span class="mono" id="tt_resp_num">____</span>, bairro
             <span class="mono" id="tt_resp_bairro">________________</span>, cidade
-            <span class="mono" id="tt_resp_cidade">______________</span>, estado
-            <span class="mono" id="tt_resp_uf">__</span> e com n. de telefone
+            <span class="mono" id="tt_resp_cidade">Garanhuns</span>, estado
+            <span class="mono" id="tt_resp_uf">PE</span> e com n. de telefone
             <span class="mono" id="tt_resp_tel">(__) _____-_____</span> venho através do presente instrumento,
             conforme portaria nº 06/11 do TJPE, autorizar meu filho(a)
             <span class="mono" id="tt_menor_nome">__________________________________</span>, nascido em
@@ -208,7 +205,7 @@
               <tr><th colspan="2">DADOS DO RESPONSÁVEL LEGAL</th></tr>
               <tr><td>Nome</td><td id="pv_resp_nome"></td></tr>
               <tr><td>CPF</td><td id="pv_resp_cpf"></td></tr>
-              <tr><td>Endereço</td><td><span id="pv_resp_log"></span>, nº <span id="pv_resp_num"></span>, <span id="pv_resp_bairro"></span>, <span id="pv_resp_cidade"></span> - <span id="pv_resp_uf"></span></td></tr>
+              <tr><td>Endereço</td><td><span id="pv_resp_log"></span>, nº <span id="pv_resp_num"></span>, <span id="pv_resp_bairro"></span>, <span id="pv_resp_cidade">Garanhuns</span> - <span id="pv_resp_uf">PE</span></td></tr>
               <tr><td>Telefone</td><td id="pv_resp_tel"></td></tr>
             </table>
           </div>
@@ -257,14 +254,7 @@
     const onlyDigits = (v) => (v||'').replace(/\\D+/g,'');
     const docId = () => new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
 
-    const DEFAULT_LOGO = 'logo.png';
-    const urlParamLogo = new URLSearchParams(location.search).get('logo');
-    const logoSrc = urlParamLogo || DEFAULT_LOGO;
-    (function setLogo(){
-      const img = document.getElementById('sheet_logo');
-      if (img){ img.src = logoSrc; img.setAttribute('crossorigin','anonymous'); }
-    })();
-
+    // máscaras CPF
     const maskCPF = (v) => {
       v = onlyDigits(v).slice(0,11);
       return v.replace(/(\\d{3})(\\d)/, '$1.$2')
@@ -282,28 +272,7 @@
       rest = (sum * 10) % 11; if (rest === 10 || rest === 11) rest = 0; return rest === parseInt(cpf.substring(10,11));
     }
 
-    function setTodayBR(){
-      try{
-        const dt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Fortaleza', day:'2-digit', month:'2-digit', year:'numeric'}).formatToParts(new Date());
-        const dd = dt.find(p=>p.type==='day').value, mm = dt.find(p=>p.type==='month').value, yyyy = dt.find(p=>p.type==='year').value;
-        const iso = `${yyyy}-${mm}-${dd}`;
-        document.getElementById('data_assinatura').value = iso;
-        document.getElementById('doc_data').textContent = `${dd}/${mm}/${yyyy}`;
-        document.getElementById('pv_data_extenso').textContent = new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Fortaleza', day:'2-digit', month:'long', year:'numeric'}).format(new Date(iso));
-      }catch(e){
-        const t = new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,'0'), dd=String(t.getDate()).padStart(2,'0');
-        const iso = `${yyyy}-${mm}-${dd}`;
-        document.getElementById('data_assinatura').value = iso;
-        document.getElementById('doc_data').textContent = `${dd}/${mm}/${yyyy}`;
-        document.getElementById('pv_data_extenso').textContent = new Intl.DateTimeFormat('pt-BR',{day:'2-digit', month:'long', year:'numeric'}).format(new Date(iso));
-      }
-    }
-
-    // live masks
-    document.getElementById('resp_cpf').addEventListener('input', (e)=> e.target.value = maskCPF(e.target.value));
-    document.getElementById('menor_cpf').addEventListener('input', (e)=> e.target.value = maskCPF(e.target.value));
-
-    // signature
+    // assinatura
     const canvas = document.getElementById('signaturePad');
     function resizeCanvasForHiDPI(){
       const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -329,95 +298,80 @@
     });
     document.getElementById('btnLimpar').addEventListener('click', (e)=>{ e.preventDefault(); signaturePad.clear(); renderPreview(); });
 
-    function getValues(){
-      return {
-        resp_nome: document.getElementById('resp_nome').value.trim(),
-        resp_cpf: document.getElementById('resp_cpf').value.trim(),
-        resp_log: document.getElementById('resp_log').value.trim(),
-        resp_num: document.getElementById('resp_num').value.trim(),
-        resp_bairro: document.getElementById('resp_bairro').value.trim(),
-        resp_cidade: document.getElementById('resp_cidade').value.trim(),
-        resp_uf: document.getElementById('resp_uf').value.trim(),
-        resp_tel: document.getElementById('resp_tel').value.trim(),
-        menor_nome: document.getElementById('menor_nome').value.trim(),
-        menor_cpf: document.getElementById('menor_cpf').value.trim(),
-        menor_nasc: document.getElementById('menor_nasc').value,
-        data: document.getElementById('data_assinatura').value,
-        aceite: document.getElementById('aceite').checked,
-      };
+    function nowBR(){
+      const fmt = (opts)=> new Intl.DateTimeFormat('pt-BR', { timeZone:'America/Fortaleza', ...opts });
+      const d = new Date();
+      const short = fmt({ day:'2-digit', month:'2-digit', year:'numeric'}).format(d);
+      const long  = fmt({ day:'2-digit', month:'long', year:'numeric'}).format(d);
+      return { short, long };
     }
 
-    function normalizeName(s){
-      return (s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/\\s+/g,' ').trim().toUpperCase();
-    }
-    function normalizePersonNameStrict(s){
-      // remove partículas comuns: DE/DA/DO/DAS/DOS/DI/DU
-      return normalizeName(s).replace(/\\b(DE|DA|DO|DAS|DOS|DI|DU)\\b/g,'').replace(/\\s+/g,' ').trim();
+    function getValues(){
+      return {
+        resp_nome: $('#resp_nome').value.trim(),
+        resp_cpf: $('#resp_cpf').value.trim(),
+        resp_log: $('#resp_log').value.trim(),
+        resp_num: $('#resp_num').value.trim(),
+        resp_bairro: $('#resp_bairro').value.trim(),
+        resp_cidade: $('#resp_cidade').value.trim() || 'Garanhuns',
+        resp_uf: $('#resp_uf').value || 'PE',
+        resp_tel: $('#resp_tel').value.trim(),
+        menor_nome: $('#menor_nome').value.trim(),
+        menor_cpf: $('#menor_cpf').value.trim(),
+        menor_nasc: $('#menor_nasc').value
+      };
     }
 
     function renderPreview(){
       const v = getValues();
-      document.getElementById('doc_data').textContent = v.data ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.data)) : document.getElementById('doc_data').textContent;
+      const today = nowBR();
+      // cabeçalho e rodapé: sempre hoje (fuso BR)
+      $('#doc_data').textContent = today.short;
+      $('#pv_data_extenso').textContent = today.long;
+
       // PV
-      document.getElementById('pv_resp_nome').textContent = v.resp_nome;
-      document.getElementById('pv_resp_cpf').textContent = v.resp_cpf;
-      document.getElementById('pv_resp_log').textContent = v.resp_log;
-      document.getElementById('pv_resp_num').textContent = v.resp_num;
-      document.getElementById('pv_resp_bairro').textContent = v.resp_bairro;
-      document.getElementById('pv_resp_cidade').textContent = v.resp_cidade;
-      document.getElementById('pv_resp_uf').textContent = v.resp_uf;
-      document.getElementById('pv_resp_tel').textContent = v.resp_tel;
-      document.getElementById('pv_menor_nome').textContent = v.menor_nome;
-      document.getElementById('pv_menor_cpf').textContent = v.menor_cpf;
-      document.getElementById('pv_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '';
-      document.getElementById('pv_cidade_assin').textContent = v.resp_cidade || 'Garanhuns';
-      document.getElementById('pv_data_extenso').textContent = v.data ? new Intl.DateTimeFormat('pt-BR',{day:'2-digit', month:'long', year:'numeric'}).format(new Date(v.data)) : document.getElementById('pv_data_extenso').textContent;
+      $('#pv_resp_nome').textContent = v.resp_nome;
+      $('#pv_resp_cpf').textContent = v.resp_cpf;
+      $('#pv_resp_log').textContent = v.resp_log;
+      $('#pv_resp_num').textContent = v.resp_num;
+      $('#pv_resp_bairro').textContent = v.resp_bairro;
+      $('#pv_resp_cidade').textContent = v.resp_cidade || 'Garanhuns';
+      $('#pv_resp_uf').textContent = v.resp_uf || 'PE';
+      $('#pv_resp_tel').textContent = v.resp_tel;
+      $('#pv_menor_nome').textContent = v.menor_nome;
+      $('#pv_menor_cpf').textContent = v.menor_cpf;
+      $('#pv_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '';
 
       // termo substituições
-      document.getElementById('tt_resp_nome').textContent = v.resp_nome || '__________________________________';
-      document.getElementById('tt_resp_cpf').textContent = v.resp_cpf || '___.___.___-__';
-      document.getElementById('tt_resp_end').textContent = v.resp_log || '__________________________________';
-      document.getElementById('tt_resp_num').textContent = v.resp_num || '____';
-      document.getElementById('tt_resp_bairro').textContent = v.resp_bairro || '________________';
-      document.getElementById('tt_resp_cidade').textContent = v.resp_cidade || '______________';
-      document.getElementById('tt_resp_uf').textContent = v.resp_uf || '__';
-      document.getElementById('tt_resp_tel').textContent = v.resp_tel || '(__) _____-_____';
-      document.getElementById('tt_menor_nome').textContent = v.menor_nome || '__________________________________';
-      document.getElementById('tt_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '__/__/____';
-      document.getElementById('tt_menor_cpf').textContent = v.menor_cpf || '___.___.___-__';
+      $('#tt_resp_nome').textContent = v.resp_nome || '__________________________________';
+      $('#tt_resp_cpf').textContent = v.resp_cpf || '___.___.___-__';
+      $('#tt_resp_end').textContent = v.resp_log || '__________________________________';
+      $('#tt_resp_num').textContent = v.resp_num || '____';
+      $('#tt_resp_bairro').textContent = v.resp_bairro || '________________';
+      $('#tt_resp_cidade').textContent = v.resp_cidade || 'Garanhuns';
+      $('#tt_resp_uf').textContent = v.resp_uf || 'PE';
+      $('#tt_resp_tel').textContent = v.resp_tel || '(__) _____-_____';
+      $('#tt_menor_nome').textContent = v.menor_nome || '__________________________________';
+      $('#tt_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '__/__/____';
+      $('#tt_menor_cpf').textContent = v.menor_cpf || '___.___.___-__';
 
-      // assinatura
+      // cidade e assinatura
+      $('#pv_cidade_assin').textContent = v.resp_cidade || 'Garanhuns';
       const dataUrl = signaturePad.isEmpty() ? '' : signaturePad.toDataURL('image/png');
-      document.getElementById('pv_assinatura').src = dataUrl;
+      $('#pv_assinatura').src = dataUrl;
     }
 
     function validateForPDF(v){
       if (!v.resp_nome) return 'Informe o nome do RESPONSÁVEL.';
-      if (!isValidCPF(v.resp_cpf)) return 'CPF do RESPONSÁVEL inválido.';
+      // CPF válido
+      const cpfR = onlyDigits(v.resp_cpf); const cpfM = onlyDigits(v.menor_cpf);
+      if (!isValidCPF(cpfR)) return 'CPF do RESPONSÁVEL inválido.';
       if (!v.menor_nome) return 'Informe o nome do MENOR.';
-      if (!isValidCPF(v.menor_cpf)) return 'CPF do MENOR inválido.';
+      if (!isValidCPF(cpfM)) return 'CPF do MENOR inválido.';
       if (!v.resp_log || !v.resp_num || !v.resp_bairro || !v.resp_cidade || !v.resp_uf) return 'Preencha o endereço completo do RESPONSÁVEL.';
-      const telDigits = onlyDigits(v.resp_tel);
-      if (telDigits.length < 10) return 'Informe um telefone válido do RESPONSÁVEL.';
-
-      // Comparações robustas para evitar falsos positivos
-      const cpfResp = onlyDigits(v.resp_cpf);
-      const cpfMenor = onlyDigits(v.menor_cpf);
-      const sameCPF = (cpfResp.length === 11 && cpfMenor.length === 11 && cpfResp === cpfMenor);
-
-      const nResp = normalizePersonNameStrict(v.resp_nome);
-      const nMenor = normalizePersonNameStrict(v.menor_nome);
-      const sameName = (!!nResp && !!nMenor && nResp === nMenor);
-
-      if (sameCPF || sameName){
-        let details = [];
-        if (sameCPF) details.push('CPF do RESPONSÁVEL e do MENOR são iguais.');
-        if (sameName) details.push('Nome do RESPONSÁVEL e do MENOR são iguais.');
-        return 'Os dados do RESPONSÁVEL e do MENOR devem ser de pessoas diferentes.\n' + details.join(' ');
-      }
-
-      if (!v.aceite) return 'Você precisa aceitar o termo.';
+      if (!$('#aceite').checked) return 'Você precisa aceitar o termo.';
       if (signaturePad.isEmpty()) return 'Assine no quadro antes de gerar o PDF.';
+      if (cpfR === cpfM) return 'Os dados do RESPONSÁVEL e do MENOR devem ser de pessoas diferentes.';
       return null;
     }
 
@@ -425,8 +379,15 @@
       const v = getValues();
       const err = validateForPDF(v);
       if (err){ alert(err); return; }
-      document.getElementById('doc_id').textContent = docId();
-      renderPreview();
+
+      // carimbar data "agora" em fuso BR e código
+      const today = nowBR();
+      $('#doc_data').textContent = today.short;
+      $('#pv_data_extenso').textContent = today.long;
+      $('#doc_id').textContent = (new Date()).toISOString().replace(/[-:TZ.]/g, '').slice(0,14);
+
+      renderPreview(); // sincroniza PV
+
       const area = document.getElementById('printArea');
       const canvasImg = await html2canvas(area, { scale: 2, useCORS: true });
       const imgData = canvasImg.toDataURL('image/png');
@@ -439,16 +400,24 @@
       pdf.save(filename);
     }
 
-    ['resp_nome','resp_cpf','resp_log','resp_num','resp_bairro','resp_cidade','resp_uf','resp_tel','menor_nome','menor_cpf','menor_nasc','aceite','data_assinatura'].forEach(id => {
-      const el = document.getElementById(id);
-      el && el.addEventListener('input', renderPreview);
-      el && el.addEventListener('change', renderPreview);
+    // máscaras CPF
+    document.getElementById('resp_cpf').addEventListener('input', (e)=> e.target.value = maskCPF(e.target.value));
+    document.getElementById('menor_cpf').addEventListener('input', (e)=> e.target.value = maskCPF(e.target.value));
+
+    // inputs -> preview
+    ['resp_nome','resp_cpf','resp_log','resp_num','resp_bairro','resp_cidade','resp_uf','resp_tel','menor_nome','menor_cpf','menor_nasc','aceite']
+      .forEach(id => { const el = document.getElementById(id); el && el.addEventListener('input', renderPreview); el && el.addEventListener('change', renderPreview); });
+
+    // inicialização: UF=PE e datas "hoje" na PV
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('resp_uf').value = 'PE';
+      const today = nowBR();
+      document.getElementById('doc_data').textContent = today.short;
+      document.getElementById('pv_data_extenso').textContent = today.long;
+      renderPreview();
     });
 
-    document.getElementById('btnPDF').addEventListener('click', (e)=>{ e.preventDefault(); generatePDF(); });
-    document.getElementById('btnReset').addEventListener('click', (e)=>{ e.preventDefault(); if(confirm('Limpar todos os campos?')) location.reload(); });
-
-    setTodayBR();
+    // primeira renderização
     renderPreview();
   </script>
 </body>
