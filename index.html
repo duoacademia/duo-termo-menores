@@ -10,13 +10,14 @@
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial; background:var(--bg); color:var(--fg);}
-    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}
     header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0 24px;border-bottom:1px solid var(--line)}
     h1{font-size:20px;margin:0;font-weight:700}
     .badge{font-size:12px;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
-    @media (max-width: 900px){.grid{grid-template-columns:1fr;}}
-    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    /* Grid com coluna esquerda fixa e PV flexível até 700px */
+    .grid{display:grid;grid-template-columns:minmax(380px, 1fr) minmax(520px, 700px);gap:20px;align-items:start}
+    @media (max-width: 980px){.grid{grid-template-columns:1fr;}}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);min-width:0}
     .card h2{font-size:16px;margin:0 0 12px}
     .row{display:grid;grid-template-columns:1fr 1fr; gap:12px}
     .row-1{grid-template-columns:1fr}
@@ -38,25 +39,28 @@
     .checkbox input.ck:focus{box-shadow:0 0 0 3px rgba(59,130,246,.35)}
     .sig-wrap{background:#0b1220;border:1px solid #1c2536;border-radius:12px;padding:12px}
     canvas{width:100%;height:220px;background:#ffffff;border-radius:8px;border:1px solid #334155;touch-action: none;}
-    .preview{position:sticky; top:24px}
+    .preview{position:sticky; top:24px; min-width:0}
     .muted{color:var(--muted)}
     .hr{height:1px;background:#1f2937;border:0;margin:12px 0}
     footer{margin-top:20px;font-size:12px;color:var(--muted);text-align:center}
-    .sheet{background:white;color:#111; width:794px; min-height:1123px; padding:28mm 20mm; border:1px solid #ddd; border-radius:6px; box-shadow:0 4px 30px rgba(0,0,0,.15);
-      word-spacing: .06em; letter-spacing: .01em; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; font-kerning: normal; hyphens: none; word-break: normal; overflow-wrap: anywhere;}
+
+    /* Printable area — PV adaptável (até 700px) */
+    .sheet{background:white;color:#111; width:100%; max-width:700px; min-width:520px; min-height:1123px; padding:28mm 20mm; border:1px solid #ddd; border-radius:6px; box-shadow:0 4px 30px rgba(0,0,0,.15);
+      word-spacing: .04em; letter-spacing: .01em; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; font-kerning: normal; hyphens: auto; word-break: normal; overflow-wrap: anywhere;}
     .sheet h3, .sheet th, .sheet strong, .sheet .title-tight { word-spacing: .08em; letter-spacing: .02em; }
     .sheet h3{margin:0 0 8px}
     .sheet small{color:#555}
     .sheet .section{margin-top:14px}
-    .sheet table{width:100%; border-collapse:collapse; font-size:13px}
-    .sheet th,.sheet td{border:1px solid #ccc; padding:6px 8px; text-align:left}
+    .sheet table{width:100%; border-collapse:collapse; font-size:13px; table-layout: fixed}
+    .sheet th,.sheet td{border:1px solid #ccc; padding:6px 8px; text-align:left; vertical-align:top; word-break: break-word}
     .sheet .sign-area{display:flex; gap:16px; align-items:flex-end; margin-top:24px}
     .sheet .sign-box{flex:1}
-    .sheet .sign-img{max-width:100%; height:auto; max-height:130px; width:auto; border:1px solid #ccc;border-radius:4px;object-fit:contain; display:block; margin:0 auto}
+    .sheet .sign-img{max-width:100%; height:auto; max-height:160px; width:auto; border:1px solid #ccc;border-radius:4px;object-fit:contain; display:block; margin:0 auto}
     .sheet .line{height:1px;background:#ccc;margin:6px 0}
     .sheet .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .sheet .brand{display:flex; align-items:center; gap:10px}
+    .sheet .brand{display:flex; align-items:center; gap:10px; min-width:0}
     .sheet .brand img.logo{height:38px; width:auto; display:block}
+    .nowrap{white-space:nowrap}
   </style>
 </head>
 <body>
@@ -66,7 +70,7 @@
         <h1>DUO Academia · Autorização para contratantes menores</h1>
         <div class="badge">Preencha, aceite o termo e assine com o dedo (ou mouse). Depois gere o PDF.</div>
       </div>
-      <div class="badge">v1.0.3 (menores)</div>
+      <div class="badge">v1.0.4 (menores)</div>
     </header>
 
     <div class="grid">
@@ -183,7 +187,7 @@
         <h2>Pré-visualização do documento (PDF)</h2>
         <div class="help">A prévia atualiza automaticamente conforme você preenche.</div>
         <div id="printArea" class="sheet" aria-label="Área imprimível">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
             <div class="brand">
               <img id="sheet_logo" class="logo" alt="Logo DUO" crossorigin="anonymous" />
               <div>
@@ -192,7 +196,7 @@
                 (87) 9 9666-0021 | (87) 9 9934-1230 · coordenacaoduoacademia@gmail.com</small>
               </div>
             </div>
-            <div style="text-align:right">
+            <div style="text-align:right; white-space:nowrap">
               <div style="font-size:12px;color:#444">Código: <span id="doc_id"></span></div>
               <div style="font-size:12px;color:#444">Data: <span id="doc_data"></span></div>
             </div>
@@ -202,6 +206,7 @@
 
           <div class="section">
             <table>
+              <colgroup><col style="width:28%"><col></colgroup>
               <tr><th colspan="2">DADOS DO RESPONSÁVEL LEGAL</th></tr>
               <tr><td>Nome</td><td id="pv_resp_nome"></td></tr>
               <tr><td>CPF</td><td id="pv_resp_cpf"></td></tr>
@@ -212,6 +217,7 @@
 
           <div class="section">
             <table>
+              <colgroup><col style="width:28%"><col></colgroup>
               <tr><th colspan="2">DADOS DO MENOR CONTRATANTE</th></tr>
               <tr><td>Nome</td><td id="pv_menor_nome"></td></tr>
               <tr><td>CPF</td><td id="pv_menor_cpf"></td></tr>
@@ -232,7 +238,7 @@
             </div>
           </div>
 
-          <div class="section" style="display:flex;justify-content:flex-end;gap:8px; font-size:13px">
+          <div class="section" style="display:flex;justify-content:flex-end;gap:8px; font-size:13px; flex-wrap:wrap">
             <div><strong>Cidade:</strong> <span id="pv_cidade_assin">Garanhuns</span></div>
             <div><strong>Data:</strong> <span id="pv_data_extenso"></span></div>
           </div>
@@ -342,7 +348,7 @@
       $('#pv_menor_cpf').textContent = v.menor_cpf;
       $('#pv_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '';
 
-      // termo substituições
+      // texto do termo
       $('#tt_resp_nome').textContent = v.resp_nome || '__________________________________';
       $('#tt_resp_cpf').textContent = v.resp_cpf || '___.___.___-__';
       $('#tt_resp_end').textContent = v.resp_log || '__________________________________';
@@ -363,8 +369,7 @@
 
     function validateForPDF(v){
       if (!v.resp_nome) return 'Informe o nome do RESPONSÁVEL.';
-      // CPF válido
-      const cpfR = onlyDigits(v.resp_cpf); const cpfM = onlyDigits(v.menor_cpf);
+      const cpfR = onlyDigits(v.resp_cpf), cpfM = onlyDigits(v.menor_cpf);
       if (!isValidCPF(cpfR)) return 'CPF do RESPONSÁVEL inválido.';
       if (!v.menor_nome) return 'Informe o nome do MENOR.';
       if (!isValidCPF(cpfM)) return 'CPF do MENOR inválido.';
@@ -373,6 +378,20 @@
       if (signaturePad.isEmpty()) return 'Assine no quadro antes de gerar o PDF.';
       if (cpfR === cpfM) return 'Os dados do RESPONSÁVEL e do MENOR devem ser de pessoas diferentes.';
       return null;
+    }
+
+    async function captureArea(area){
+      // tenta capturar; se falhar por CORS (logo externo), oculta o logo e tenta de novo
+      try{
+        return await html2canvas(area, { scale: 2, useCORS: true });
+      }catch(e){
+        const logo = document.getElementById('sheet_logo');
+        if (logo){ const prev = logo.style.display; logo.style.display='none';
+          try{ const c = await html2canvas(area, { scale: 2, useCORS: true }); logo.style.display=prev; return c; }
+          catch(e2){ logo.style.display=prev; throw e2; }
+        }
+        throw e;
+      }
     }
 
     async function generatePDF(){
@@ -384,20 +403,24 @@
       const today = nowBR();
       $('#doc_data').textContent = today.short;
       $('#pv_data_extenso').textContent = today.long;
-      $('#doc_id').textContent = (new Date()).toISOString().replace(/[-:TZ.]/g, '').slice(0,14);
-
+      $('#doc_id').textContent = docId();
       renderPreview(); // sincroniza PV
 
       const area = document.getElementById('printArea');
-      const canvasImg = await html2canvas(area, { scale: 2, useCORS: true });
-      const imgData = canvasImg.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p','mm','a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const imgProps = { w: pageWidth - 20, h: (canvasImg.height * (pageWidth - 20)) / canvasImg.width };
-      pdf.addImage(imgData, 'PNG', 10, 10, imgProps.w, imgProps.h, undefined, 'FAST');
-      const filename = `DUO_Autorizacao_Menores_${document.getElementById('doc_id').textContent}.pdf`;
-      pdf.save(filename);
+      try{
+        const canvasImg = await captureArea(area);
+        const imgData = canvasImg.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p','mm','a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const w = pageWidth - 20, h = (canvasImg.height * w) / canvasImg.width;
+        pdf.addImage(imgData, 'PNG', 10, 10, w, h, undefined, 'FAST');
+        const filename = `DUO_Autorizacao_Menores_${document.getElementById('doc_id').textContent}.pdf`;
+        pdf.save(filename);
+      }catch(e){
+        console.error(e);
+        alert('Falha ao gerar o PDF. Dica: se estiver usando LOGO de outro domínio (parâmetro ?logo=), tente remover esse parâmetro ou enviar o arquivo logo.png no mesmo repositório.');
+      }
     }
 
     // máscaras CPF
@@ -408,7 +431,7 @@
     ['resp_nome','resp_cpf','resp_log','resp_num','resp_bairro','resp_cidade','resp_uf','resp_tel','menor_nome','menor_cpf','menor_nasc','aceite']
       .forEach(id => { const el = document.getElementById(id); el && el.addEventListener('input', renderPreview); el && el.addEventListener('change', renderPreview); });
 
-    // inicialização: UF=PE e datas "hoje" na PV
+    // inicialização
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('resp_uf').value = 'PE';
       const today = nowBR();
@@ -416,6 +439,10 @@
       document.getElementById('pv_data_extenso').textContent = today.long;
       renderPreview();
     });
+
+    // botões
+    document.getElementById('btnPDF').addEventListener('click', (e)=>{ e.preventDefault(); generatePDF(); });
+    document.getElementById('btnReset').addEventListener('click', (e)=>{ e.preventDefault(); if(confirm('Limpar todos os campos?')) location.reload(); });
 
     // primeira renderização
     renderPreview();
