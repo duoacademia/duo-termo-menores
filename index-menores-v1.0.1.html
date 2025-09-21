@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DUO Academia — Termo p/ Contratantes Menores</title>
+  <meta name="description" content="Formulário para autorização de contratantes menores com assinatura por touch (gera PDF)." />
+  <style>
+    :root{ --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --fg:#e5e7eb; --line:#1f2937; --brand:#3b82f6; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial; background:var(--bg); color:var(--fg);}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0 24px;border-bottom:1px solid var(--line)}
+    h1{font-size:20px;margin:0;font-weight:700}
+    .badge{font-size:12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+    @media (max-width: 900px){.grid{grid-template-columns:1fr;}}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card h2{font-size:16px;margin:0 0 12px}
+    .row{display:grid;grid-template-columns:1fr 1fr; gap:12px}
+    .row-1{grid-template-columns:1fr}
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
+    input,select,textarea{width:100%;background:#0b1220;border:1px solid #1c2536;color:var(--fg);border-radius:10px;padding:12px;outline:none}
+    input:focus,textarea:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+    .help{font-size:12px;color:var(--muted);margin-top:4px}
+    .buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{appearance:none;border:1px solid #2a3448;background:#162136;color:#dbeafe;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px}
+    .btn.primary{background:var(--brand); border-color:var(--brand); color:white}
+    .btn.success{background:var(--ok); border-color:var(--ok); color:#001a07}
+    .btn.danger{background:var(--danger); border-color:var(--danger); color:white}
+    .terms{border:1px dashed #334155;border-radius:12px;padding:12px; background:#0b1220; max-height:220px; overflow:auto;}
+    .checkbox{display:flex;gap:10px;align-items:center;margin:12px 0}
+    .checkbox input.ck{appearance:none; -webkit-appearance:none; width:22px; height:22px; border:2px solid #334155; border-radius:6px; background:#fff; display:inline-grid; place-content:center; cursor:pointer; outline:none}
+    .checkbox input.ck::before{content:""; width:14px; height:14px; transform:scale(0); transition:120ms transform ease-in-out; background:var(--brand); border-radius:4px}
+    .checkbox input.ck:checked::before{transform:scale(1)}
+    .checkbox span{font-size:14px; color:#e5e7eb; font-weight:600}
+    .checkbox input.ck:focus{box-shadow:0 0 0 3px rgba(59,130,246,.35)}
+    .sig-wrap{background:#0b1220;border:1px solid #1c2536;border-radius:12px;padding:12px}
+    canvas{width:100%;height:220px;background:#ffffff;border-radius:8px;border:1px solid #334155;touch-action: none;}
+    .preview{position:sticky; top:24px}
+    .muted{color:var(--muted)}
+    .hr{height:1px;background:#1f2937;border:0;margin:12px 0}
+    footer{margin-top:20px;font-size:12px;color:var(--muted);text-align:center}
+    .sheet{background:white;color:#111; width:794px; min-height:1123px; padding:28mm 20mm; border:1px solid #ddd; border-radius:6px; box-shadow:0 4px 30px rgba(0,0,0,.15);
+      word-spacing: .06em; letter-spacing: .01em; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; font-kerning: normal; hyphens: none; word-break: normal; overflow-wrap: anywhere;}
+    .sheet h3, .sheet th, .sheet strong, .sheet .title-tight { word-spacing: .08em; letter-spacing: .02em; }
+    .sheet h3{margin:0 0 8px}
+    .sheet small{color:#555}
+    .sheet .section{margin-top:14px}
+    .sheet table{width:100%; border-collapse:collapse; font-size:13px}
+    .sheet th,.sheet td{border:1px solid #ccc; padding:6px 8px; text-align:left}
+    .sheet .sign-area{display:flex; gap:16px; align-items:flex-end; margin-top:24px}
+    .sheet .sign-box{flex:1}
+    .sheet .sign-img{max-width:100%; height:auto; max-height:130px; width:auto; border:1px solid #ccc;border-radius:4px;object-fit:contain; display:block; margin:0 auto}
+    .sheet .line{height:1px;background:#ccc;margin:6px 0}
+    .sheet .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .sheet .brand{display:flex; align-items:center; gap:10px}
+    .sheet .brand img.logo{height:38px; width:auto; display:block}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>DUO Academia · Autorização para contratantes menores</h1>
+        <div class="badge">Preencha, aceite o termo e assine com o dedo (ou mouse). Depois gere o PDF.</div>
+      </div>
+      <div class="badge">v1.0.1 (menores)</div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>1) Dados do responsável legal</h2>
+        <div class="row">
+          <div>
+            <label for="resp_nome">Nome completo</label>
+            <input id="resp_nome" placeholder="Ex.: Maria da Silva" />
+          </div>
+          <div>
+            <label for="resp_cpf">CPF</label>
+            <input id="resp_cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <div>
+            <label for="resp_log">Endereço (logradouro)</label>
+            <input id="resp_log" placeholder="Rua, Avenida..." />
+          </div>
+          <div>
+            <label for="resp_num">Número</label>
+            <input id="resp_num" placeholder="0" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="resp_bairro">Bairro</label>
+            <input id="resp_bairro" placeholder="Bairro" />
+          </div>
+          <div>
+            <label for="resp_cidade">Cidade</label>
+            <input id="resp_cidade" placeholder="Garanhuns" value="Garanhuns" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="resp_uf">Estado (UF)</label>
+            <select id="resp_uf">
+              <option value="">UF</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option>
+              <option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option>
+              <option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option>SP</option><option>SE</option><option>TO</option>
+            </select>
+          </div>
+          <div>
+            <label for="resp_tel">Telefone</label>
+            <input id="resp_tel" inputmode="tel" placeholder="(00) 90000-0000" />
+          </div>
+        </div>
+
+        <h2 style="margin-top:18px">2) Dados do menor contratante</h2>
+        <div class="row">
+          <div>
+            <label for="menor_nome">Nome do menor</label>
+            <input id="menor_nome" placeholder="Nome completo do menor" />
+          </div>
+          <div>
+            <label for="menor_cpf">CPF do menor</label>
+            <input id="menor_cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="menor_nasc">Data de nascimento</label>
+            <input id="menor_nasc" type="date" />
+          </div>
+          <div>
+            <label for="data_assinatura">Data da assinatura</label>
+            <input id="data_assinatura" type="date" />
+          </div>
+        </div>
+
+        <h2 style="margin-top:18px">3) Termo</h2>
+        <div class="terms">
+          <div class="title-tight" style="text-align:center;font-weight:700;margin:6px 0 12px">TERMO DE AUTORIZAÇÃO PARA CONTRATANTES MENORES</div>
+          <p style="margin:8px 0; font-size:13px; line-height:1.45">
+            Eu, <span class="mono" id="tt_resp_nome">__________________________________</span>, portador(a) do CPF
+            <span class="mono" id="tt_resp_cpf">___.___.___-__</span>, residente e domiciliado em
+            <span class="mono" id="tt_resp_end">__________________________________</span>, n.º
+            <span class="mono" id="tt_resp_num">____</span>, bairro
+            <span class="mono" id="tt_resp_bairro">________________</span>, cidade
+            <span class="mono" id="tt_resp_cidade">______________</span>, estado
+            <span class="mono" id="tt_resp_uf">__</span> e com n. de telefone
+            <span class="mono" id="tt_resp_tel">(__) _____-_____</span> venho através do presente instrumento,
+            conforme portaria nº 06/11 do TJPE, autorizar meu filho(a)
+            <span class="mono" id="tt_menor_nome">__________________________________</span>, nascido em
+            <span class="mono" id="tt_menor_nasc">__/__/____</span> e portador(a) do CPF
+            <span class="mono" id="tt_menor_cpf">___.___.___-__</span>, menor de 18 anos, a se matricular na DUO Academia, me comprometendo a
+            monitorar seus horários e dias de frequência, para garantir que não sejam prejudicados seus horários escolares e ainda acompanhar sua condição de saúde,
+            para que sempre esteja apto(a) a desenvolver os exercícios sem qualquer prejuízo para sua condição física/psíquica.
+          </p>
+        </div>
+        <label class="checkbox">
+          <input id="aceite" class="ck" type="checkbox">
+          <span>Declaro que li e concordo com o termo acima.</span>
+        </label>
+
+        <h2 style="margin-top:18px">4) Assinatura do responsável legal</h2>
+        <div class="sig-wrap">
+          <label>Assine no quadro abaixo</label>
+          <canvas id="signaturePad" width="900" height="350" aria-label="Área para assinatura com o dedo ou mouse"></canvas>
+          <div class="buttons">
+            <button class="btn" id="btnLimpar">Limpar</button>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button class="btn success" id="btnPDF">Gerar PDF</button>
+          <button class="btn danger" id="btnReset">Resetar formulário</button>
+        </div>
+      </div>
+
+      <div class="card preview">
+        <h2>Pré-visualização do documento (PDF)</h2>
+        <div class="help">A prévia atualiza automaticamente conforme você preenche.</div>
+        <div id="printArea" class="sheet" aria-label="Área imprimível">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div class="brand">
+              <img id="sheet_logo" class="logo" alt="Logo DUO" crossorigin="anonymous" />
+              <div>
+                <h3>DUO ACADEMIA</h3>
+                <small>Av. Simoa Gomes, 726 – Heliópolis · R. Dom José, 187 – Santo Antônio<br>
+                (87) 9 9666-0021 | (87) 9 9934-1230 · coordenacaoduoacademia@gmail.com</small>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:12px;color:#444">Código: <span id="doc_id"></span></div>
+              <div style="font-size:12px;color:#444">Data: <span id="doc_data"></span></div>
+            </div>
+          </div>
+          <div class="line"></div>
+          <div class="title-tight" style="text-align:center;font-weight:700;margin:6px 0 12px">TERMO DE AUTORIZAÇÃO PARA CONTRATANTES MENORES</div>
+
+          <div class="section">
+            <table>
+              <tr><th colspan="2">DADOS DO RESPONSÁVEL LEGAL</th></tr>
+              <tr><td>Nome</td><td id="pv_resp_nome"></td></tr>
+              <tr><td>CPF</td><td id="pv_resp_cpf"></td></tr>
+              <tr><td>Endereço</td><td><span id="pv_resp_log"></span>, nº <span id="pv_resp_num"></span>, <span id="pv_resp_bairro"></span>, <span id="pv_resp_cidade"></span> - <span id="pv_resp_uf"></span></td></tr>
+              <tr><td>Telefone</td><td id="pv_resp_tel"></td></tr>
+            </table>
+          </div>
+
+          <div class="section">
+            <table>
+              <tr><th colspan="2">DADOS DO MENOR CONTRATANTE</th></tr>
+              <tr><td>Nome</td><td id="pv_menor_nome"></td></tr>
+              <tr><td>CPF</td><td id="pv_menor_cpf"></td></tr>
+              <tr><td>Nascimento</td><td id="pv_menor_nasc"></td></tr>
+            </table>
+          </div>
+
+          <div class="section" style="font-size:13px">
+            <strong>Portaria nº 06/11 – TJPE.</strong> O responsável autoriza a matrícula do(a) menor na DUO Academia e compromete-se a monitorar horários/frequência e acompanhar a condição de saúde do(a) menor, garantindo estar apto(a) à prática de exercícios.
+          </div>
+
+          <div class="section sign-area">
+            <div class="sign-box">
+              <div style="margin-bottom:6px">Assinante: <span id="pv_quem">Responsável Legal</span></div>
+              <img id="pv_assinatura" class="sign-img" alt="Assinatura" />
+              <div class="line"></div>
+              <div style="font-size:12px;color:#555">Assinatura do Responsável</div>
+            </div>
+          </div>
+
+          <div class="section" style="display:flex;justify-content:flex-end;gap:8px; font-size:13px">
+            <div><strong>Cidade:</strong> <span id="pv_cidade_assin">Garanhuns</span></div>
+            <div><strong>Data:</strong> <span id="pv_data_extenso"></span></div>
+          </div>
+        </div>
+        <footer>
+          Dica: você também pode usar <strong>Imprimir &gt; Salvar como PDF</strong> se preferir.
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <script>
+    const $ = (sel) => document.querySelector(sel);
+    const onlyDigits = (v) => (v||'').replace(/\\D+/g,'');
+    const docId = () => new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+
+    const DEFAULT_LOGO = 'logo.png';
+    const urlParamLogo = new URLSearchParams(location.search).get('logo');
+    const logoSrc = urlParamLogo || DEFAULT_LOGO;
+    (function setLogo(){
+      const img = document.getElementById('sheet_logo');
+      if (img){ img.src = logoSrc; img.setAttribute('crossorigin','anonymous'); }
+    })();
+
+    const maskCPF = (v) => {
+      v = onlyDigits(v).slice(0,11);
+      return v.replace(/(\\d{3})(\\d)/, '$1.$2')
+              .replace(/(\\d{3})(\\d)/, '$1.$2')
+              .replace(/(\\d{3})(\\d{1,2})$/, '$1-$2');
+    };
+    function isValidCPF(cpf){
+      cpf = onlyDigits(cpf);
+      if (cpf.length !== 11) return false;
+      if (/^(\\d)\\1{10}$/.test(cpf)) return false;
+      let sum = 0, rest;
+      for (let i=1;i<=9;i++) sum += parseInt(cpf.substring(i-1,i)) * (11 - i);
+      rest = (sum * 10) % 11; if (rest === 10 || rest === 11) rest = 0; if (rest !== parseInt(cpf.substring(9,10))) return false;
+      sum = 0; for (let i=1;i<=10;i++) sum += parseInt(cpf.substring(i-1,i)) * (12 - i);
+      rest = (sum * 10) % 11; if (rest === 10 || rest === 11) rest = 0; return rest === parseInt(cpf.substring(10,11));
+    }
+
+    function setTodayBR(){
+      try{
+        const dt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Fortaleza', day:'2-digit', month:'2-digit', year:'numeric'}).formatToParts(new Date());
+        const dd = dt.find(p=>p.type==='day').value, mm = dt.find(p=>p.type==='month').value, yyyy = dt.find(p=>p.type==='year').value;
+        const iso = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('data_assinatura').value = iso;
+        document.getElementById('doc_data').textContent = `${dd}/${mm}/${yyyy}`;
+        document.getElementById('pv_data_extenso').textContent = new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Fortaleza', day:'2-digit', month:'long', year:'numeric'}).format(new Date(iso));
+      }catch(e){
+        const t = new Date(), yyyy=t.getFullYear(), mm=String(t.getMonth()+1).padStart(2,'0'), dd=String(t.getDate()).padStart(2,'0');
+        const iso = `${yyyy}-${mm}-${dd}`;
+        document.getElementById('data_assinatura').value = iso;
+        document.getElementById('doc_data').textContent = `${dd}/${mm}/${yyyy}`;
+        document.getElementById('pv_data_extenso').textContent = new Intl.DateTimeFormat('pt-BR',{day:'2-digit', month:'long', year:'numeric'}).format(new Date(iso));
+      }
+    }
+
+    // live masks
+    document.getElementById('resp_cpf').addEventListener('input', (e)=> e.target.value = maskCPF(e.target.value));
+    document.getElementById('menor_cpf').addEventListener('input', (e)=> e.target.value = maskCPF(e.target.value));
+
+    // signature
+    const canvas = document.getElementById('signaturePad');
+    function resizeCanvasForHiDPI(){
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width  = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(ratio, ratio);
+    }
+    let signaturePad;
+    function initSignature(){
+      resizeCanvasForHiDPI();
+      signaturePad = new SignaturePad(canvas, { backgroundColor:'#ffffff', penColor:'#111827', minWidth:0.7, maxWidth:2.2, throttle:0 });
+      canvas.addEventListener('mouseup', renderPreview);
+      canvas.addEventListener('touchend', renderPreview);
+    }
+    initSignature();
+    window.addEventListener('resize', ()=>{
+      const data = signaturePad.toData();
+      resizeCanvasForHiDPI();
+      signaturePad.clear();
+      signaturePad.fromData(data);
+    });
+    document.getElementById('btnLimpar').addEventListener('click', (e)=>{ e.preventDefault(); signaturePad.clear(); renderPreview(); });
+
+    function getValues(){
+      return {
+        resp_nome: document.getElementById('resp_nome').value.trim(),
+        resp_cpf: document.getElementById('resp_cpf').value.trim(),
+        resp_log: document.getElementById('resp_log').value.trim(),
+        resp_num: document.getElementById('resp_num').value.trim(),
+        resp_bairro: document.getElementById('resp_bairro').value.trim(),
+        resp_cidade: document.getElementById('resp_cidade').value.trim(),
+        resp_uf: document.getElementById('resp_uf').value.trim(),
+        resp_tel: document.getElementById('resp_tel').value.trim(),
+        menor_nome: document.getElementById('menor_nome').value.trim(),
+        menor_cpf: document.getElementById('menor_cpf').value.trim(),
+        menor_nasc: document.getElementById('menor_nasc').value,
+        data: document.getElementById('data_assinatura').value,
+        aceite: document.getElementById('aceite').checked,
+      };
+    }
+
+    function normalizeName(s){
+      return (s||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/\\s+/g,' ').trim().toUpperCase();
+    }
+    function normalizePersonNameStrict(s){
+      // remove partículas comuns: DE/DA/DO/DAS/DOS/DI/DU
+      return normalizeName(s).replace(/\\b(DE|DA|DO|DAS|DOS|DI|DU)\\b/g,'').replace(/\\s+/g,' ').trim();
+    }
+
+    function renderPreview(){
+      const v = getValues();
+      document.getElementById('doc_data').textContent = v.data ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.data)) : document.getElementById('doc_data').textContent;
+      // PV
+      document.getElementById('pv_resp_nome').textContent = v.resp_nome;
+      document.getElementById('pv_resp_cpf').textContent = v.resp_cpf;
+      document.getElementById('pv_resp_log').textContent = v.resp_log;
+      document.getElementById('pv_resp_num').textContent = v.resp_num;
+      document.getElementById('pv_resp_bairro').textContent = v.resp_bairro;
+      document.getElementById('pv_resp_cidade').textContent = v.resp_cidade;
+      document.getElementById('pv_resp_uf').textContent = v.resp_uf;
+      document.getElementById('pv_resp_tel').textContent = v.resp_tel;
+      document.getElementById('pv_menor_nome').textContent = v.menor_nome;
+      document.getElementById('pv_menor_cpf').textContent = v.menor_cpf;
+      document.getElementById('pv_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '';
+      document.getElementById('pv_cidade_assin').textContent = v.resp_cidade || 'Garanhuns';
+      document.getElementById('pv_data_extenso').textContent = v.data ? new Intl.DateTimeFormat('pt-BR',{day:'2-digit', month:'long', year:'numeric'}).format(new Date(v.data)) : document.getElementById('pv_data_extenso').textContent;
+
+      // termo substituições
+      document.getElementById('tt_resp_nome').textContent = v.resp_nome || '__________________________________';
+      document.getElementById('tt_resp_cpf').textContent = v.resp_cpf || '___.___.___-__';
+      document.getElementById('tt_resp_end').textContent = v.resp_log || '__________________________________';
+      document.getElementById('tt_resp_num').textContent = v.resp_num || '____';
+      document.getElementById('tt_resp_bairro').textContent = v.resp_bairro || '________________';
+      document.getElementById('tt_resp_cidade').textContent = v.resp_cidade || '______________';
+      document.getElementById('tt_resp_uf').textContent = v.resp_uf || '__';
+      document.getElementById('tt_resp_tel').textContent = v.resp_tel || '(__) _____-_____';
+      document.getElementById('tt_menor_nome').textContent = v.menor_nome || '__________________________________';
+      document.getElementById('tt_menor_nasc').textContent = v.menor_nasc ? new Intl.DateTimeFormat('pt-BR').format(new Date(v.menor_nasc)) : '__/__/____';
+      document.getElementById('tt_menor_cpf').textContent = v.menor_cpf || '___.___.___-__';
+
+      // assinatura
+      const dataUrl = signaturePad.isEmpty() ? '' : signaturePad.toDataURL('image/png');
+      document.getElementById('pv_assinatura').src = dataUrl;
+    }
+
+    function validateForPDF(v){
+      if (!v.resp_nome) return 'Informe o nome do RESPONSÁVEL.';
+      if (!isValidCPF(v.resp_cpf)) return 'CPF do RESPONSÁVEL inválido.';
+      if (!v.menor_nome) return 'Informe o nome do MENOR.';
+      if (!isValidCPF(v.menor_cpf)) return 'CPF do MENOR inválido.';
+      if (!v.resp_log || !v.resp_num || !v.resp_bairro || !v.resp_cidade || !v.resp_uf) return 'Preencha o endereço completo do RESPONSÁVEL.';
+      const telDigits = onlyDigits(v.resp_tel);
+      if (telDigits.length < 10) return 'Informe um telefone válido do RESPONSÁVEL.';
+
+      // Comparações robustas para evitar falsos positivos
+      const cpfResp = onlyDigits(v.resp_cpf);
+      const cpfMenor = onlyDigits(v.menor_cpf);
+      const sameCPF = (cpfResp.length === 11 && cpfMenor.length === 11 && cpfResp === cpfMenor);
+
+      const nResp = normalizePersonNameStrict(v.resp_nome);
+      const nMenor = normalizePersonNameStrict(v.menor_nome);
+      const sameName = (!!nResp && !!nMenor && nResp === nMenor);
+
+      if (sameCPF || sameName){
+        let details = [];
+        if (sameCPF) details.push('CPF do RESPONSÁVEL e do MENOR são iguais.');
+        if (sameName) details.push('Nome do RESPONSÁVEL e do MENOR são iguais.');
+        return 'Os dados do RESPONSÁVEL e do MENOR devem ser de pessoas diferentes.\n' + details.join(' ');
+      }
+
+      if (!v.aceite) return 'Você precisa aceitar o termo.';
+      if (signaturePad.isEmpty()) return 'Assine no quadro antes de gerar o PDF.';
+      return null;
+    }
+
+    async function generatePDF(){
+      const v = getValues();
+      const err = validateForPDF(v);
+      if (err){ alert(err); return; }
+      document.getElementById('doc_id').textContent = docId();
+      renderPreview();
+      const area = document.getElementById('printArea');
+      const canvasImg = await html2canvas(area, { scale: 2, useCORS: true });
+      const imgData = canvasImg.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p','mm','a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = { w: pageWidth - 20, h: (canvasImg.height * (pageWidth - 20)) / canvasImg.width };
+      pdf.addImage(imgData, 'PNG', 10, 10, imgProps.w, imgProps.h, undefined, 'FAST');
+      const filename = `DUO_Autorizacao_Menores_${document.getElementById('doc_id').textContent}.pdf`;
+      pdf.save(filename);
+    }
+
+    ['resp_nome','resp_cpf','resp_log','resp_num','resp_bairro','resp_cidade','resp_uf','resp_tel','menor_nome','menor_cpf','menor_nasc','aceite','data_assinatura'].forEach(id => {
+      const el = document.getElementById(id);
+      el && el.addEventListener('input', renderPreview);
+      el && el.addEventListener('change', renderPreview);
+    });
+
+    document.getElementById('btnPDF').addEventListener('click', (e)=>{ e.preventDefault(); generatePDF(); });
+    document.getElementById('btnReset').addEventListener('click', (e)=>{ e.preventDefault(); if(confirm('Limpar todos os campos?')) location.reload(); });
+
+    setTodayBR();
+    renderPreview();
+  </script>
+</body>
+</html>
