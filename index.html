@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DUO Academia — Termo para Contratantes Menores</title>
+  <title>DUO Academia — Termo p/ Contratantes Menores</title>
   <meta name="description" content="Formulário para autorização de contratantes menores com assinatura por touch (gera PDF). Data é carimbada no momento da geração do PDF." />
   <link rel="preload" as="image" href="logo.png">
   <style>
@@ -77,6 +77,13 @@
     @page { size: A4; margin: 10mm; }
     @media print{
       .sheet{ box-shadow:none; border:0; width:auto; max-width:none; }
+    }
+
+    /* === Forçar todos os textos em MAIÚSCULO (UI e PDF) === */
+    html, body, .wrap, .card, .sheet, header, footer,
+    input, select, textarea, button, table, th, td, label,
+    .terms, .checkbox, .btn, .badge, h1, h2, h3, small, strong, .help, .title-tight {
+      text-transform: uppercase;
     }
   </style>
 </head>
