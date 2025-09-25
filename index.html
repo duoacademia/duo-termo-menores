@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>DUO Academia — Termo p/ Contratantes Menores</title>
   <meta name="description" content="Formulário para autorização de contratantes menores com assinatura por touch (gera PDF). Data é carimbada no momento da geração do PDF." />
+  <link rel="preload" as="image" href="logo.png">
   <style>
     :root{ --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --fg:#e5e7eb; --line:#1f2937; --brand:#3b82f6; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; }
     *{box-sizing:border-box}
@@ -55,12 +56,28 @@
     .sheet th,.sheet td{border:1px solid #ccc; padding:6px 8px; text-align:left; vertical-align:top; word-break: break-word}
     .sheet .sign-area{display:flex; gap:16px; align-items:flex-end; margin-top:24px}
     .sheet .sign-box{flex:1}
-    .sheet .sign-img{max-width:100%; height:auto; max-height:160px; width:auto; border:1px solid #ccc;border-radius:4px;object-fit:contain; display:block; margin:0 auto}
+    .sheet .sign-img{max-width:100%; height:auto; max-height:160px; width:auto; border:0; border-radius:0; background:transparent; object-fit:contain; display:block; margin:0 auto}
     .sheet .line{height:1px;background:#ccc;margin:6px 0}
     .sheet .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
     .sheet .brand{display:flex; align-items:center; gap:10px; min-width:0}
-    .sheet .brand img.logo{height:38px; width:auto; display:block}
+    .sheet .brand img.logo{height:34px; width:auto; display:block}
     .nowrap{white-space:nowrap}
+
+    /* Reduzir/compactar infos da empresa para ganhar espaço */
+    .sheet .brand small{
+      font-size:10px;
+      line-height:1.25;
+      display:block;
+      max-width:300px;
+      white-space:normal;
+    }
+    .sheet .brand h3{ margin:0 0 2px 0; }
+
+    /* Regras de impressão úteis quando usar Imprimir > PDF */
+    @page { size: A4; margin: 10mm; }
+    @media print{
+      .sheet{ box-shadow:none; border:0; width:auto; max-width:none; }
+    }
   </style>
 </head>
 <body>
@@ -257,20 +274,20 @@
 
   <script>
     const $ = (sel) => document.querySelector(sel);
-    const onlyDigits = (v) => (v||'').replace(/\\D+/g,'');
+    const onlyDigits = (v) => (v||'').replace(/\D+/g,'');
     const docId = () => new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
 
     // máscaras CPF
     const maskCPF = (v) => {
       v = onlyDigits(v).slice(0,11);
-      return v.replace(/(\\d{3})(\\d)/, '$1.$2')
-              .replace(/(\\d{3})(\\d)/, '$1.$2')
-              .replace(/(\\d{3})(\\d{1,2})$/, '$1-$2');
+      return v.replace(/(\d{3})(\d)/, '$1.$2')
+              .replace(/(\d{3})(\d)/, '$1.$2')
+              .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     };
     function isValidCPF(cpf){
       cpf = onlyDigits(cpf);
       if (cpf.length !== 11) return false;
-      if (/^(\\d)\\1{10}$/.test(cpf)) return false;
+      if (/^(\d)\1{10}$/.test(cpf)) return false;
       let sum = 0, rest;
       for (let i=1;i<=9;i++) sum += parseInt(cpf.substring(i-1,i)) * (11 - i);
       rest = (sum * 10) % 11; if (rest === 10 || rest === 11) rest = 0; if (rest !== parseInt(cpf.substring(9,10))) return false;
@@ -412,14 +429,46 @@
         const imgData = canvasImg.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p','mm','a4');
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const w = pageWidth - 20, h = (canvasImg.height * w) / canvasImg.width;
-        pdf.addImage(imgData, 'PNG', 10, 10, w, h, undefined, 'FAST');
+
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const M = { left:10, top:10, right:10, bottom:10 };
+        const maxW = pageW - M.left - M.right;
+        const maxH = pageH - M.top - M.bottom;
+
+        // escala com auto-shrink para caber em 1 página A4
+        let w = maxW;
+        let h = (canvasImg.height * w) / canvasImg.width;
+        if (h > maxH){
+          h = maxH;
+          w = (canvasImg.width * h) / canvasImg.height;
+        }
+
+        pdf.addImage(imgData, 'PNG', M.left, M.top, w, h, undefined, 'FAST');
         const filename = `DUO_Autorizacao_Menores_${document.getElementById('doc_id').textContent}.pdf`;
         pdf.save(filename);
       }catch(e){
         console.error(e);
         alert('Falha ao gerar o PDF. Dica: se estiver usando LOGO de outro domínio (parâmetro ?logo=), tente remover esse parâmetro ou enviar o arquivo logo.png no mesmo repositório.');
+      }
+    }
+
+    // Carregar o logo de forma robusta (DataURL quando possível)
+    async function setSheetLogo(){
+      const el = document.getElementById('sheet_logo');
+      if (!el) return;
+      const qs  = new URLSearchParams(location.search);
+      const src = qs.get('logo') || 'logo.png';
+      try {
+        const res = await fetch(src, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP '+res.status);
+        const blob = await res.blob();
+        const reader = new FileReader();
+        reader.onload = () => { el.src = reader.result; };
+        reader.readAsDataURL(blob);
+      } catch (e) {
+        el.crossOrigin = 'anonymous';
+        el.src = new URL(src, location.href).href;
       }
     }
 
@@ -433,6 +482,7 @@
 
     // inicialização
     document.addEventListener('DOMContentLoaded', () => {
+      setSheetLogo();
       document.getElementById('resp_uf').value = 'PE';
       const today = nowBR();
       document.getElementById('doc_data').textContent = today.short;
